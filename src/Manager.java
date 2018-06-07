@@ -15,7 +15,8 @@ public class Manager {
 	static ArrayList<Command> commandList; //lista de todos os comandos
 	
 	public Manager() throws IOException {
-
+		
+		commandList = new ArrayList<Command>();
 		System.out.println("Digite o endereco do arquivo de entrada:");
 		Scanner in = new Scanner(System.in);
 		String input = in.nextLine();
