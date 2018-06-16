@@ -15,6 +15,7 @@ public class Manager {
 	static int memory[];
 	static int disk[];
 	static ArrayList<Command> commandList; //lista de todos os comandos
+	static ArrayList<Process> processList; //lista de todos os processos ativos
 	
 	public Manager() throws IOException {
 		
@@ -30,7 +31,7 @@ public class Manager {
 			randomModeExecution();
 		}
 		else {
-			//sequentialModeExecution();
+			sequentialModeExecution();
 		}
 		in.close();
 	}
@@ -65,13 +66,77 @@ public class Manager {
 	
 	//Metodo que executa a simulacao no modo aleatorio
 	public void randomModeExecution () {
-		
+		//TODO
 	}
 	
 	//Metodo que executa a simulacao no modo sequencial, algoritmo de troca LRU ou aleatorio
-	/*
 	public void sequentialModeExecution(){
-	
+		if(algorithm.equals("aleatorio")) { //modo aleatorio
+			//TODO
+		}
+		else { //modo LRU
+			Iterator<Command> iterator = commandList.iterator();
+			while(iterator.hasNext()) {
+				Command actual = iterator.next();
+				switch (actual.getOperation()) {
+					case "C":
+						Process aux = new Process(actual.getValue(),actual.getProcessId());
+						processList.add(aux);
+						System.out.println("Criando Processo: "+aux.getId()+"| Tamanho: "+aux.getSize());
+						allocateMemory(aux.getId(),aux.getSize());
+						break;
+					case "A":
+						System.out.println("Processo: "+actual.getProcessId()+"| Acessando Endereco: "+actual.getValue());
+						accessAddress(actual.getProcessId(),actual.getValue());
+						updateTimers(actual.getProcessId());
+						break;
+					case "M":
+						System.out.println("Processo: "+actual.getProcessId()+"| Alocando "+actual.getValue()+" Enderecos Novos De Memoria");
+						allocateMemory(actual.getProcessId(),actual.getValue());
+						updateTimers(actual.getProcessId());
+						break;
+					case "T":
+						System.out.println("Terminando Processo: "+actual.getProcessId());
+						terminateProcess(actual.getProcessId());
+						break;
+					default:
+						System.out.println("Operacao invalida!");
+				}
+			}
+		}
 	}
-	 */
+	
+	//Metodo que termina um processo
+	public void terminateProcess(int targetProcess) {
+		for(int i = 0; i < memory.length; i++) { //apaga da memoria
+			if(memory[i] == targetProcess) {
+				memory[i] = 0;
+			}
+		}
+		for(int j = 0; j < disk.length; j++) { //apaga do disco
+			if(disk[j] == targetProcess) {
+				disk[j] = 0;
+			}
+		}
+		for(int k = 0; k < processList.size(); k++) { //apaga da lista de processos
+			if(processList.get(k).getId() == targetProcess) {
+				processList.remove(k);
+			}
+		}
+	}
+	
+	//Metodo que aloca memoria para um novo processo ou processo existente
+	public void allocateMemory(int id, int size) {
+		//TODO
+	}
+	
+	//Metodo que acessa determinado endereco de memoria de um processo
+	public void accessAddress(int id, int address) {
+		//TODO
+	}
+	
+	//Metodo que atualiza os timers dos processos para o algoritmo LRU
+	public void updateTimers(int actualProcess) {
+		//TODO
+	}
 }
