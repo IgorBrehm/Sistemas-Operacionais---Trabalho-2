@@ -1,8 +1,12 @@
+/*
+ * 
+ */
 
 public class Page {
-	private int start;
-	private int end;
-	private String location;
+	private int start; //indice do endereco inicial
+	private int end; //indice do endereco final
+	private String location; //localizacao da pagina
+	
 	public Page(int newStart, int newEnd, String newLocation) {
 		this.start = newStart;
 		this.end = newEnd;

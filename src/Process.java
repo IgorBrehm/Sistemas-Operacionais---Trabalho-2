@@ -9,7 +9,8 @@ public class Process {
 	private int size;//quantos bytes o processo ocupa na memoria
 	private int id; // id do processo
 	private int timer; //timer que incrementa conforme o processo nao e usado
-	private ArrayList<Page> pageList;
+	private ArrayList<Page> pageList; //a lista de paginas do processo
+	
 	public Process(int newSize, int newId) {
 		this.size = newSize;
 		this.id = newId;
@@ -19,6 +20,10 @@ public class Process {
 	
 	public int getSize() {
 		return this.size;
+	}
+	
+	public void setSize(int newSize) {
+		this.size = newSize;
 	}
 	
 	public int getId() {
