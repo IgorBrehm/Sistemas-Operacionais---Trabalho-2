@@ -12,6 +12,8 @@ public class Manager {
 	static int pageSize; //tamanho da pagina
 	static int memorySize; //tamanho da memoria
 	static int diskSize; //tamanho do disco
+	static int memory[];
+	static int disk[];
 	static ArrayList<Command> commandList; //lista de todos os comandos
 	
 	public Manager() throws IOException {
@@ -22,6 +24,14 @@ public class Manager {
 		String input = in.nextLine();
 		File file = new File(input);
 		readFile(file);
+		memory = new int [memorySize];
+		disk = new int [diskSize];
+		if(mode.equals("aleatorio")) {
+			randomModeExecution();
+		}
+		else {
+			//sequentialModeExecution();
+		}
 		in.close();
 	}
 
@@ -52,4 +62,16 @@ public class Manager {
             e.getMessage());
         }
     }
+	
+	//Metodo que executa a simulacao no modo aleatorio
+	public void randomModeExecution () {
+		
+	}
+	
+	//Metodo que executa a simulacao no modo sequencial, algoritmo de troca LRU ou aleatorio
+	/*
+	public void sequentialModeExecution(){
+	
+	}
+	 */
 }

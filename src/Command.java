@@ -1,8 +1,8 @@
 
 public class Command {
-	private String operation;
-	private int processId;
-	private int value;
+	private String operation; //a operacao
+	private int processId; //o id do processo alvo da operacao
+	private int value; //o valor 
 	
 	public Command(String oneOperation, int oneProcessId, int oneValue) {
 		this.operation = oneOperation;
