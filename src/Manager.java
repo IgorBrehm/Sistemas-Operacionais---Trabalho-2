@@ -12,8 +12,8 @@ public class Manager {
 	static int pageSize; //tamanho da pagina
 	static int memorySize; //tamanho da memoria
 	static int diskSize; //tamanho do disco
-	static int memory[];
-	static int disk[];
+	static int memory[]; //a memoria
+	static int disk[]; //o disco
 	static ArrayList<Command> commandList; //lista de todos os comandos
 	static ArrayList<Process> processList; //lista de todos os processos ativos
 	
@@ -132,11 +132,35 @@ public class Manager {
 	
 	//Metodo que acessa determinado endereco de memoria de um processo
 	public void accessAddress(int id, int address) {
-		//TODO
+		Process target = null;
+		for(int i = 0; i < processList.size(); i++) { //verificar se e um processo valido
+			if(processList.get(i).getId() == id) {
+				target = processList.get(i);
+				break;
+			}
+		}
+		if(target == null) { 
+			System.out.println("Processo a ser acessado nao existe!");
+			return;
+		}
+		else {
+			if(target.getSize() <= address) { //verificar se e um endereco valido
+				System.out.println("Endereco a ser acessado nao existe!");
+				System.out.println("Erro de acesso - Processo: "+target.getId()+"("+target.getSize()+"/"+address+")");
+			}
+			else { //verificar se o endereco esta na memoria ou nao
+				int page = address/8;
+				
+			}
+		}
 	}
 	
 	//Metodo que atualiza os timers dos processos para o algoritmo LRU
 	public void updateTimers(int actualProcess) {
-		//TODO
+		for(int i = 0; i < processList.size(); i++) {
+			if(processList.get(i).getId() != actualProcess) {
+				processList.get(i).setTimer(processList.get(i).getTimer()+1);
+			}
+		}
 	}
 }

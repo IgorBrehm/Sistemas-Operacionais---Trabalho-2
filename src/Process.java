@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 /*
  * 
  */
@@ -7,10 +9,12 @@ public class Process {
 	private int size;//quantos bytes o processo ocupa na memoria
 	private int id; // id do processo
 	private int timer; //timer que incrementa conforme o processo nao e usado
+	private ArrayList<Page> pageList;
 	public Process(int newSize, int newId) {
 		this.size = newSize;
 		this.id = newId;
 		this.timer = 0;
+		this.pageList = new ArrayList<Page>();
 	}
 	
 	public int getSize() {
@@ -27,5 +31,13 @@ public class Process {
 	
 	public void setTimer(int newTimer) {
 		this.timer = newTimer;
+	}
+	
+	public Page getPage(int index) {
+		return this.pageList.get(index);
+	}
+	
+	public void addPage(Page newPage) {
+		this.pageList.add(newPage);
 	}
 }
