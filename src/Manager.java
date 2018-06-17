@@ -150,7 +150,16 @@ public class Manager {
 			}
 			else { //verificar se o endereco esta na memoria ou nao
 				int page = address/8;
-				
+				if(target.getPage(page-1).getLocation() != "memoria") { //nao esta na memoria
+					System.out.println("\nPAGE FAULT!\n");
+					printMemory();
+					printDisk();
+					//TODO falta ver onde esta a pagina e etc
+					System.out.println("\nEND OF PAGE FAULT\n");
+					printMemory();
+					printDisk();
+					System.out.println("");
+				}
 			}
 		}
 	}
@@ -161,6 +170,20 @@ public class Manager {
 			if(processList.get(i).getId() != actualProcess) {
 				processList.get(i).setTimer(processList.get(i).getTimer()+1);
 			}
+		}
+	}
+	
+	//Metodo que printa na tela toda a memoria
+	public void printMemory() {
+		for(int j = 0; j < memory.length; j++) {
+			System.out.println(memory[j]+" | ");
+		}
+	}
+	
+	//Metodo que printa na tela todo o disco
+	public void printDisk() {
+		for(int j = 0; j < disk.length; j++) {
+			System.out.println(disk[j]+" | ");
 		}
 	}
 }
