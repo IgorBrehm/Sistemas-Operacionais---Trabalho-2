@@ -2,7 +2,7 @@ import java.util.*;
 import java.io.*;
 
 /*
- * 
+ * TODO descricao et al
  */
 
 public class Manager implements Runnable {
@@ -177,7 +177,19 @@ public class Manager implements Runnable {
 					System.out.println("\nPAGE FAULT!\n");
 					printMemory();
 					printDisk();
-					//TODO falta ver onde esta a pagina e etc
+					if(target.getPage(page-1).getLocation() == "disco") { 
+					//se esta no disco, troca de lugar
+					//com alguma pagina deste processo que esteja na memoria
+					//ou encontrando um espaco vazio caso exista 
+					//TODO
+					}
+					else {
+					//se nao esta no disco nem memoria, 
+					//tem que dar um jeito de colocar pra memoria
+					//tanto tirando uma outra pagina deste processo da memoria
+					//ou encontrando um espaco vazio caso exista
+					//TODO	
+					}
 					System.out.println("\nEND OF PAGE FAULT\n");
 					printMemory();
 					printDisk();

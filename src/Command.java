@@ -1,3 +1,6 @@
+/*
+ * TODO descricao et al
+ */
 
 public class Command {
 	private String operation; //a operacao
