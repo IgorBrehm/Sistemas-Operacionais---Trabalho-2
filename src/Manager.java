@@ -5,7 +5,7 @@ import java.io.*;
  * 
  */
 
-public class Manager {
+public class Manager implements Runnable {
 	
 	static String mode; //modo de execucao
 	static String algorithm; //algoritmo de troca
@@ -16,10 +16,12 @@ public class Manager {
 	static int disk[]; //o disco
 	static ArrayList<Command> commandList; //lista de todos os comandos
 	static ArrayList<Process> processList; //lista de todos os processos ativos
+	static int idCounter; //contador dos ids dos processos no modo aleatorio
 	
 	public Manager() throws IOException {
 		
 		commandList = new ArrayList<Command>();
+		idCounter = 1;
 		System.out.println("Digite o endereco do arquivo de entrada:");
 		Scanner in = new Scanner(System.in);
 		String input = in.nextLine();
@@ -28,7 +30,13 @@ public class Manager {
 		memory = new int [memorySize];
 		disk = new int [diskSize];
 		if(mode.equals("aleatorio")) {
-			randomModeExecution();
+			Manager m1 = new Manager();
+			Thread p1 = new Thread(m1);
+			Thread p2 = new Thread(m1);
+			Thread p3 = new Thread(m1);
+	        p1.start();
+	        p2.start();
+	        p3.start();
 		}
 		else {
 			sequentialModeExecution();
@@ -65,43 +73,58 @@ public class Manager {
     }
 	
 	//Metodo que executa a simulacao no modo aleatorio
-	public void randomModeExecution () {
-		//TODO
+	public void run () {
+		Process process = new Process(32,idCounter);
+		System.out.println("Criando Processo: "+process.getId()+"| Tamanho: "+process.getSize());
+		++idCounter;
+		while(true) {
+			int op = (int) (Math.random() * 100);
+			if(op < 2) { //Terminar processo
+				System.out.println("Terminando Processo: "+process.getId());
+				terminateProcess(process.getId());
+				return;
+			}
+			else if(op < 6) { //Alocar mais memoria
+				int value = (int) (Math.random() * (pageSize*2));
+				System.out.println("Processo: "+process.getId()+"| Alocando "+value+" Enderecos Novos De Memoria");
+				allocateMemory(process.getId(),value);
+			}
+			else { //Acessar o endereco
+				int address = (int) (Math.random() * (memorySize-1));
+				System.out.println("Processo: "+process.getId()+"| Acessando Endereco: "+address);
+				accessAddress(process.getId(),address);
+			}
+		}
 	}
 	
 	//Metodo que executa a simulacao no modo sequencial, algoritmo de troca LRU ou aleatorio
 	public void sequentialModeExecution(){
-		if(algorithm.equals("aleatorio")) { //modo aleatorio
-			//TODO
-		}
-		else { //modo LRU
-			Iterator<Command> iterator = commandList.iterator();
-			while(iterator.hasNext()) {
-				Command actual = iterator.next();
-				switch (actual.getOperation()) {
-					case "C":
-						Process aux = new Process(actual.getValue(),actual.getProcessId());
-						processList.add(aux);
-						System.out.println("Criando Processo: "+aux.getId()+"| Tamanho: "+aux.getSize());
-						allocateMemory(aux.getId(),aux.getSize());
-						break;
-					case "A":
-						System.out.println("Processo: "+actual.getProcessId()+"| Acessando Endereco: "+actual.getValue());
-						accessAddress(actual.getProcessId(),actual.getValue());
-						updateTimers(actual.getProcessId());
-						break;
-					case "M":
-						System.out.println("Processo: "+actual.getProcessId()+"| Alocando "+actual.getValue()+" Enderecos Novos De Memoria");
-						allocateMemory(actual.getProcessId(),actual.getValue());
-						updateTimers(actual.getProcessId());
-						break;
-					case "T":
-						System.out.println("Terminando Processo: "+actual.getProcessId());
-						terminateProcess(actual.getProcessId());
-						break;
-					default:
-						System.out.println("Operacao invalida!");
-				}
+		Iterator<Command> iterator = commandList.iterator();
+		while(iterator.hasNext()) {
+			Command actual = iterator.next();
+			switch (actual.getOperation()) {
+				case "C":
+					Process aux = new Process(actual.getValue(),actual.getProcessId());
+					processList.add(aux);
+					System.out.println("Criando Processo: "+aux.getId()+"| Tamanho: "+aux.getSize());
+					allocateMemory(aux.getId(),aux.getSize());
+					break;
+				case "A":
+					System.out.println("Processo: "+actual.getProcessId()+"| Acessando Endereco: "+actual.getValue());
+					accessAddress(actual.getProcessId(),actual.getValue());
+					updateTimers(actual.getProcessId());
+					break;
+				case "M":
+					System.out.println("Processo: "+actual.getProcessId()+"| Alocando "+actual.getValue()+" Enderecos Novos De Memoria");
+					allocateMemory(actual.getProcessId(),actual.getValue());
+					updateTimers(actual.getProcessId());
+					break;
+				case "T":
+					System.out.println("Terminando Processo: "+actual.getProcessId());
+					terminateProcess(actual.getProcessId());
+					break;
+				default:
+					System.out.println("Operacao invalida!");
 			}
 		}
 	}
