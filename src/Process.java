@@ -59,6 +59,15 @@ public class Process {
 		return this.pageList.get(index);
 	}
 	
+	public ArrayList<Page> getPages(int index) {
+		return this.pageList;
+	}
+	
+	public void setPageAddress(int index, int newStart, int newEnd) {
+		this.pageList.get(index).setStart(newStart);
+		this.pageList.get(index).setEnd(newEnd);
+	}
+	
 	public void addPage(Page newPage) {
 		this.pageList.add(newPage);
 	}

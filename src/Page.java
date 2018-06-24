@@ -20,12 +20,17 @@
 public class Page {
 	private int start; //indice do endereco inicial
 	private int end; //indice do endereco final
+	private int[] values; //vetor com os valores guardados nesta pagina
 	private String location; //localizacao da pagina
 	
 	public Page(int newStart, int newEnd, String newLocation) {
 		this.start = newStart;
 		this.end = newEnd;
 		this.location = newLocation;
+		this.values = new int[newEnd - newStart];
+		for(int i = 0; i < values.length; i++) {
+			values[i] = -1;
+		}
 	}
 	
 	public int getStart() {
@@ -50,5 +55,17 @@ public class Page {
 	
 	public void setEnd(int newValue) {
 		this.end = newValue;
+	}
+	
+	public int[] getPageValues() {
+		return this.values;
+	}
+	
+	public int getPageValue(int index) {
+		return this.values[index];
+	}
+	
+	public void setPageValue(int index, int newValue) {
+		this.values[index] = newValue;
 	}
 }

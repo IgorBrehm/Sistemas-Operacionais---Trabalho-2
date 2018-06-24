@@ -101,7 +101,7 @@ public class Manager implements Runnable {
 		processList.add(process);
 		System.out.println("Criando Processo: "+process.getId()+"| Tamanho: "+process.getSize());
 		++idCounter;
-		allocateMemory(process,process.getSize());
+		allocateMemory(process,process.getSize(),true);
 		while(true) {
 			int op = (int) (Math.random() * 100);
 			if(op < 2) { //Terminar processo
@@ -112,7 +112,7 @@ public class Manager implements Runnable {
 			else if(op < 6) { //Alocar mais memoria
 				int value = (int) (Math.random() * (pageSize*2));
 				System.out.println("Processo: "+process.getId()+"| Alocando "+value+" Enderecos Novos De Memoria");
-				allocateMemory(process,value);
+				allocateMemory(process,value,false);
 			}
 			else { //Acessar o endereco
 				int address = (int) (Math.random() * (memorySize-1));
@@ -132,7 +132,7 @@ public class Manager implements Runnable {
 					Process aux = new Process(actual.getValue(),actual.getProcessId());
 					processList.add(aux);
 					System.out.println("Criando Processo: "+aux.getId()+"| Tamanho: "+aux.getSize());
-					allocateMemory(aux,aux.getSize());
+					allocateMemory(aux,aux.getSize(),true);
 					break;
 				case "A":
 					System.out.println("Processo: "+actual.getProcessId()+"| Acessando Endereco: "+actual.getValue());
@@ -152,8 +152,10 @@ public class Manager implements Runnable {
 						System.out.println("Processo Que Supostamente Gostaria De Pedir Mais Enderecos Nao Existe!");
 						break;
 					}
-					allocateMemory(requestant,actual.getValue());
-					updateTimers(actual.getProcessId());
+					else {
+						allocateMemory(requestant,actual.getValue(),false);
+						updateTimers(actual.getProcessId());
+					}
 					break;
 				case "T":
 					System.out.println("Terminando Processo: "+actual.getProcessId());
@@ -187,34 +189,53 @@ public class Manager implements Runnable {
 	}
 	
 	//Metodo que aloca memoria para um novo processo ou processo existente
-	public void allocateMemory(Process requestant, int size) {
+	public void allocateMemory(Process requestant, int size,boolean isNewProcess) {
 		if(mode.equals("aleatorio") || algorithm.equals("aleatorio")) { //se for aleatorio
 			int remToStore = size;
-			int pages = (int) Math.ceil((double)size/(double)pageSize);
-			for(int i = 0; i < memory.length && (remToStore > 0) ; i = i + pageSize) { //procura espaço livre na memoria
-				if(memory[i].getOwnerId() == 0) { //se for uma pagina inteira vazia
-					for(int k = 0; k < pageSize && (remToStore > 0); k++) {
-						memory[k].setOwnerId(requestant.getId());
-						//memory[k].setOwnerAddress();
-						--remToStore;
+			if(isNewProcess == true) { //se for um novo processo
+				int pages = (int) Math.ceil((double)size/(double)pageSize);
+				for(int i = 0; i < memory.length && (remToStore > 0) ; i = i + pageSize) { //procura espaco livre na memoria
+					if(memory[i].getOwnerId() == 0) { //se for uma pagina inteira vazia
+						for(int k = 0; k < pageSize && (remToStore > 0); k++) {
+							memory[k].setOwnerId(requestant.getId());
+							//memory[k].setOwnerAddress(); //TODO arrumar isso pra funcionar direito com a nova logica
+							--remToStore;
+						}
 					}
 				}
-				else if (memory[i].getOwnerId() == requestant.getId()) { //procura espaco dentro da pagina ja de mesmo dono
-					
+				//TODO se ainda estiver coisa pra escrever e acabou espaco livre na memoria, varias coisas pra fazer ainda aqui
+			}
+			else { //se for um processo ja existente
+				for(int i = 0; i < memory.length && (remToStore > 0) ; i = i + pageSize) { //procura espaco livre na memoria
+					if(memory[i].getOwnerId() == 0) { //se for uma pagina inteira vazia
+						for(int k = 0; k < pageSize && (remToStore > 0); k++) {
+							memory[k].setOwnerId(requestant.getId());
+							//memory[k].setOwnerAddress();
+							--remToStore;
+						}
+					}
+					else if (memory[i].getOwnerId() == requestant.getId()) { //procura espaco dentro da pagina ja de mesmo dono
+						
+					}
+					else { //se nao e vazia nem do mesmo dono
+						
+					}
+				}
+				if(remToStore > 0) {
+					//TODO se ainda estiver coisa pra escrever e acabou espaco livre na memoria, varias coisas pra fazer ainda aqui
 				}
 				else {
-					
+					return;
 				}
-			}
-			if(remToStore > 0) {
-				
-			}
-			else {
-				return;
 			}
 		}
 		else { //se for LRU
-			
+			if(isNewProcess == true) { //se for um novo processo
+				
+			}
+			else {//se for um processo ja existente
+				
+			}
 		}
 	}
 	
@@ -237,29 +258,16 @@ public class Manager implements Runnable {
 				System.out.println("Erro de acesso - Processo: "+target.getId()+"("+target.getSize()+"/"+address+")");
 			}
 			else { //verificar se o endereco esta na memoria ou nao
-				int page = (int) Math.ceil((double)address/(double)pageSize);
-				if(target.getPage(page-1).getLocation() != "memoria") { //nao esta na memoria
-					System.out.println("\nPAGE FAULT!\n");
-					printMemory();
-					printDisk();
-					if(target.getPage(page-1).getLocation() == "disco") { 
+				//TODO ta faltando muita coisa aqui ainda
 					//se esta no disco, troca de lugar
 					//com alguma pagina deste processo que esteja na memoria
 					//ou encontrando um espaco vazio caso exista 
 					//TODO
-					}
-					else {
 					//se nao esta no disco nem memoria, 
 					//tem que dar um jeito de colocar pra memoria
 					//tanto tirando uma outra pagina deste processo da memoria
 					//ou encontrando um espaco vazio caso exista
-					//TODO	
-					}
-					System.out.println("\nEND OF PAGE FAULT\n");
-					printMemory();
-					printDisk();
-					System.out.println("");
-				}
+					//TODO
 			}
 		}
 	}
