@@ -2,7 +2,22 @@ import java.util.*;
 import java.io.*;
 
 /*
- * TODO descricao et al
+ * Classe que contem a maior e principal parte da logica da simulacao em si
+ *
+ * Este programa e o segundo trabalho da disciplina de Sistemas Operacionais
+ * PUCRS, Engenharia De Software, Primeiro semestre de 2018, professor Avelino
+ *
+ * O objetivo deste programa e realizar uma simulacao de um gerenciador de memoria, contando com 
+ * dois modos de operar, aleatório e sequencial, assim como tambem com dois diferentes algoritmos
+ * de troca para quando ocorrem page faults, que seriam o LRU e o aleatório.
+ * 
+ * A solucao encontrada para fazer a simulacao foi separando o modo de operar em duas classes distintas,
+ * expressar a memoria RAM e de disco como vetores de inteiros assim como criar diferentes objetos para
+ * expressar conceitos importantes ao processo da gerencia de memoria, que sao o Process, Command e Page.
+ *
+ * @author Igor Sgorla Brehm, 16180276
+ * @author Gabriel Franzoni, 15105090
+ * @date 23/06/2018
  */
 
 public class Manager implements Runnable {
@@ -74,9 +89,11 @@ public class Manager implements Runnable {
 	
 	//Metodo que executa a simulacao no modo aleatorio
 	public void run () {
-		Process process = new Process(32,idCounter);
+		Process process = new Process(pageSize*4,idCounter);
+		processList.add(process);
 		System.out.println("Criando Processo: "+process.getId()+"| Tamanho: "+process.getSize());
 		++idCounter;
+		allocateMemory(process.getId(),process.getSize());
 		while(true) {
 			int op = (int) (Math.random() * 100);
 			if(op < 2) { //Terminar processo
@@ -150,7 +167,12 @@ public class Manager implements Runnable {
 	
 	//Metodo que aloca memoria para um novo processo ou processo existente
 	public void allocateMemory(int id, int size) {
-		//TODO
+		if(mode.equals("aleatorio") || algorithm.equals("aleatorio")) { //se for aleatorio
+			
+		}
+		else { //se for LRU
+			
+		}
 	}
 	
 	//Metodo que acessa determinado endereco de memoria de um processo
