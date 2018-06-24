@@ -7,8 +7,8 @@ import java.util.ArrayList;
  * PUCRS, Engenharia De Software, Primeiro semestre de 2018, professor Avelino
  *
  * O objetivo deste programa e realizar uma simulacao de um gerenciador de memoria, contando com 
- * dois modos de operar, aleatório e sequencial, assim como tambem com dois diferentes algoritmos
- * de troca para quando ocorrem page faults, que seriam o LRU e o aleatório.
+ * dois modos de operar, aleatï¿½rio e sequencial, assim como tambem com dois diferentes algoritmos
+ * de troca para quando ocorrem page faults, que seriam o LRU e o aleatï¿½rio.
  * 
  * A solucao encontrada para fazer a simulacao foi separando o modo de operar em duas classes distintas,
  * expressar a memoria RAM e de disco como vetores de inteiros assim como criar diferentes objetos para
@@ -24,6 +24,7 @@ public class Process {
 	private int size;//quantos bytes o processo ocupa na memoria
 	private int id; // id do processo
 	private int timer; //timer que incrementa conforme o processo nao e usado
+	private int addressCounter; //contador de enderecos do processo
 	private ArrayList<Page> pageList; //a lista de paginas do processo
 	
 	public Process(int newSize, int newId) {
@@ -31,6 +32,7 @@ public class Process {
 		this.id = newId;
 		this.timer = 0;
 		this.pageList = new ArrayList<Page>();
+		this.addressCounter = 0;
 	}
 	
 	public int getSize() {
@@ -59,5 +61,13 @@ public class Process {
 	
 	public void addPage(Page newPage) {
 		this.pageList.add(newPage);
+	}
+	
+	public int getAddressCounter() {
+		return this.addressCounter;
+	}
+	
+	public void setAddressCounter(int newValue) {
+		this.addressCounter = newValue;
 	}
 }

@@ -8,8 +8,8 @@ import java.io.*;
  * PUCRS, Engenharia De Software, Primeiro semestre de 2018, professor Avelino
  *
  * O objetivo deste programa e realizar uma simulacao de um gerenciador de memoria, contando com 
- * dois modos de operar, aleatório e sequencial, assim como tambem com dois diferentes algoritmos
- * de troca para quando ocorrem page faults, que seriam o LRU e o aleatório.
+ * dois modos de operar, aleatï¿½rio e sequencial, assim como tambem com dois diferentes algoritmos
+ * de troca para quando ocorrem page faults, que seriam o LRU e o aleatï¿½rio.
  * 
  * A solucao encontrada para fazer a simulacao foi separando o modo de operar em duas classes distintas,
  * expressar a memoria RAM e de disco como vetores de inteiros assim como criar diferentes objetos para
@@ -27,8 +27,8 @@ public class Manager implements Runnable {
 	static int pageSize; //tamanho da pagina
 	static int memorySize; //tamanho da memoria
 	static int diskSize; //tamanho do disco
-	static int memory[]; //a memoria
-	static int disk[]; //o disco
+	static Cell memory[]; //a memoria
+	static Cell disk[]; //o disco
 	static ArrayList<Command> commandList; //lista de todos os comandos
 	static ArrayList<Process> processList; //lista de todos os processos ativos
 	static int idCounter; //contador dos ids dos processos no modo aleatorio
@@ -42,8 +42,16 @@ public class Manager implements Runnable {
 		String input = in.nextLine();
 		File file = new File(input);
 		readFile(file);
-		memory = new int [memorySize];
-		disk = new int [diskSize];
+		memory = new Cell [memorySize];
+		disk = new Cell [diskSize];
+		for(int i = 0; i < memory.length; i++) { //inicializar mem
+			memory[i].setOwnerId(0);
+			memory[i].setOwnerAddress(-1);
+		}
+		for(int j = 0; j < disk.length; j++) { //inicializar disco
+			disk[j].setOwnerId(0);
+			disk[j].setOwnerAddress(-1);
+		}
 		if(mode.equals("aleatorio")) {
 			Manager m1 = new Manager();
 			Thread p1 = new Thread(m1);
@@ -93,7 +101,7 @@ public class Manager implements Runnable {
 		processList.add(process);
 		System.out.println("Criando Processo: "+process.getId()+"| Tamanho: "+process.getSize());
 		++idCounter;
-		allocateMemory(process.getId(),process.getSize());
+		allocateMemory(process,process.getSize());
 		while(true) {
 			int op = (int) (Math.random() * 100);
 			if(op < 2) { //Terminar processo
@@ -104,7 +112,7 @@ public class Manager implements Runnable {
 			else if(op < 6) { //Alocar mais memoria
 				int value = (int) (Math.random() * (pageSize*2));
 				System.out.println("Processo: "+process.getId()+"| Alocando "+value+" Enderecos Novos De Memoria");
-				allocateMemory(process.getId(),value);
+				allocateMemory(process,value);
 			}
 			else { //Acessar o endereco
 				int address = (int) (Math.random() * (memorySize-1));
@@ -124,7 +132,7 @@ public class Manager implements Runnable {
 					Process aux = new Process(actual.getValue(),actual.getProcessId());
 					processList.add(aux);
 					System.out.println("Criando Processo: "+aux.getId()+"| Tamanho: "+aux.getSize());
-					allocateMemory(aux.getId(),aux.getSize());
+					allocateMemory(aux,aux.getSize());
 					break;
 				case "A":
 					System.out.println("Processo: "+actual.getProcessId()+"| Acessando Endereco: "+actual.getValue());
@@ -132,8 +140,19 @@ public class Manager implements Runnable {
 					updateTimers(actual.getProcessId());
 					break;
 				case "M":
+					Process requestant = null;
 					System.out.println("Processo: "+actual.getProcessId()+"| Alocando "+actual.getValue()+" Enderecos Novos De Memoria");
-					allocateMemory(actual.getProcessId(),actual.getValue());
+					for(int i = 0; i < processList.size(); i++) {
+						if(processList.get(i).getId() == actual.getProcessId()) {
+							requestant = processList.get(i);
+							break;
+						}
+					}
+					if(requestant == null) {
+						System.out.println("Processo Que Supostamente Gostaria De Pedir Mais Enderecos Nao Existe!");
+						break;
+					}
+					allocateMemory(requestant,actual.getValue());
 					updateTimers(actual.getProcessId());
 					break;
 				case "T":
@@ -149,13 +168,15 @@ public class Manager implements Runnable {
 	//Metodo que termina um processo
 	public void terminateProcess(int targetProcess) {
 		for(int i = 0; i < memory.length; i++) { //apaga da memoria
-			if(memory[i] == targetProcess) {
-				memory[i] = 0;
+			if(memory[i].getOwnerId() == targetProcess) {
+				memory[i].setOwnerId(0);
+				memory[i].setOwnerAddress(-1);
 			}
 		}
 		for(int j = 0; j < disk.length; j++) { //apaga do disco
-			if(disk[j] == targetProcess) {
-				disk[j] = 0;
+			if(disk[j].getOwnerId() == targetProcess) {
+				disk[j].setOwnerId(0);
+				disk[j].setOwnerAddress(-1);
 			}
 		}
 		for(int k = 0; k < processList.size(); k++) { //apaga da lista de processos
@@ -166,9 +187,31 @@ public class Manager implements Runnable {
 	}
 	
 	//Metodo que aloca memoria para um novo processo ou processo existente
-	public void allocateMemory(int id, int size) {
+	public void allocateMemory(Process requestant, int size) {
 		if(mode.equals("aleatorio") || algorithm.equals("aleatorio")) { //se for aleatorio
-			
+			int remToStore = size;
+			int pages = (int) Math.ceil((double)size/(double)pageSize);
+			for(int i = 0; i < memory.length && (remToStore > 0) ; i = i + pageSize) { //procura espaÃ§o livre na memoria
+				if(memory[i].getOwnerId() == 0) { //se for uma pagina inteira vazia
+					for(int k = 0; k < pageSize && (remToStore > 0); k++) {
+						memory[k].setOwnerId(requestant.getId());
+						//memory[k].setOwnerAddress();
+						--remToStore;
+					}
+				}
+				else if (memory[i].getOwnerId() == requestant.getId()) { //procura espaco dentro da pagina ja de mesmo dono
+					
+				}
+				else {
+					
+				}
+			}
+			if(remToStore > 0) {
+				
+			}
+			else {
+				return;
+			}
 		}
 		else { //se for LRU
 			
@@ -194,7 +237,7 @@ public class Manager implements Runnable {
 				System.out.println("Erro de acesso - Processo: "+target.getId()+"("+target.getSize()+"/"+address+")");
 			}
 			else { //verificar se o endereco esta na memoria ou nao
-				int page = address/8;
+				int page = (int) Math.ceil((double)address/(double)pageSize);
 				if(target.getPage(page-1).getLocation() != "memoria") { //nao esta na memoria
 					System.out.println("\nPAGE FAULT!\n");
 					printMemory();
@@ -233,14 +276,14 @@ public class Manager implements Runnable {
 	//Metodo que printa na tela toda a memoria
 	public void printMemory() {
 		for(int j = 0; j < memory.length; j++) {
-			System.out.println(memory[j]+" | ");
+			System.out.println(memory[j].getOwnerId()+"/"+memory[j].getOwnerAddress()+" | ");
 		}
 	}
 	
 	//Metodo que printa na tela todo o disco
 	public void printDisk() {
 		for(int j = 0; j < disk.length; j++) {
-			System.out.println(disk[j]+" | ");
+			System.out.println(disk[j].getOwnerId()+"/"+disk[j].getOwnerAddress()+" | ");
 		}
 	}
 }
